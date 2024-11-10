@@ -43,9 +43,11 @@ class PasswordResetController extends Controller
         $user->update([
             'password' => bcrypt($request->password)
         ]);
+
         
         return response()->json([
             'message' => 'Password reset successfully'
         ], 200);
+        
     }
 }
