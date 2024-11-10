@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\LoginRequest;
 
@@ -22,7 +21,7 @@ class LoginController extends Controller
         $user = User::where('email', $email)->first();
         
         // Invalid credentials
-        if(!$user || !\Hash::check($password, $user->password)){
+        if(!$user || !Hash::check($password, $user->password)){
             return response()->json([
                 'message' => "The provided credentials are incorrect"
             ], 401);
