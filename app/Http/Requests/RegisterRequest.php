@@ -23,11 +23,10 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {   
-        $user_table = (new User)->getTable();
         return [
-            'name' => ['required', 'string', 'min:4'],
-            'email' => ['email', Rule::unique($user_table)],
-            'password' => ['required', 'string', 'min:5']
+            'name'      => ['required', 'string', 'min:4'],
+            'email'     => ['required', 'email', Rule::unique(User::class, 'email')],
+            'password'  => ['required', 'string', 'min:5', 'confirmed'],
         ];
     }
 }
