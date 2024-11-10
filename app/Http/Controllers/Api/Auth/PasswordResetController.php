@@ -7,18 +7,17 @@ use Illuminate\Http\Request;
 use App\Http\Requests\SendResetLinkRequest;
 use App\Mail\ResetPassword;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
+use App\Mail\PasswordUpdated;
 
 class PasswordResetController extends Controller
 {
     //
     public function sendResetLink(SendResetLinkRequest $request){
         try {
-            $url = URL::temporarySignedRoute('password.reset', now()->addMinute(30), ['email' => $request->email]);
-            Mail::to($request->email)->send(new ResetPassword($url));
-            // Mail::to($request->email)->queue(new ResetPassword());
+            Mail::to($request->email)->send(new ResetPassword($request->email));
+            // Mail::to($request->email)->queue(new ResetPassword($request->email));
 
             return response()->json([
                 'message' => 'Reset link sent successfully'
@@ -44,10 +43,15 @@ class PasswordResetController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
+        $response = ['message' => 'Password reset successfully'];
+
+        try {
+            Mail::to($user->email)->send(new PasswordUpdated());
+        } catch (\Exception $error) {
+            $response['error'][] = 'Failed to send password updated email';
+        }
         
-        return response()->json([
-            'message' => 'Password reset successfully'
-        ], 200);
+        return response()->json($response, 200);
         
     }
 }

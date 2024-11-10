@@ -10,18 +10,19 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\URL;
 
-class ResetPassword extends Mailable
+class Emailverification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $reset_password_link;
+
+    private $url;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($email)
+    public function __construct($user)
     {
-        $this->reset_password_link = URL::temporarySignedRoute('password.reset', now()->addMinute(30), ['email' => $email]);
+        $this->url = URL::temporarySignedRoute('verify.email', now()->addMinute(30), ['email' => $user->email]);
     }
 
     /**
@@ -30,7 +31,7 @@ class ResetPassword extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Password',
+            subject: 'Email Verification',
         );
     }
 
@@ -40,10 +41,8 @@ class ResetPassword extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'email.reset_password',
-            with: [
-                'reset_password_link' => $this->reset_password_link
-            ]
+            markdown: 'email.verification',
+            with: ['url' => $this->url]
         );
     }
 
